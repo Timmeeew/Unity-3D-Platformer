@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Unity-3D-Platformer")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+395251b5e921010b35f71b9477b03416d9ad3b86")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e08e76892afad1c9234b0e5d78f6a56a69fd4be3")]
 [assembly: System.Reflection.AssemblyProductAttribute("Unity-3D-Platformer")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Unity-3D-Platformer")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
