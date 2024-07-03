@@ -1,52 +1,70 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Animations;
 using UnityEngine.InputSystem;
 
-
-public class PlayerCamera : MonoBehaviour
+public class PlayerMovementScriptV2 : MonoBehaviour
 {
-    public Transform Player;
-    public Transform MainCamera;
-    public Transform ActualCamera;
-    public float MouseSensitivity = 500f;
-    float CameraVerticalRotation = 0f;
-    float CameraHorizontalRotation = 0f;
-
-    float MouseX;
-    float MouseY;
+    private PlayerInput playerInput;
+    private InputAction moveAction;
+    private InputAction jumpAction;
+    private Rigidbody rb;
+    private bool grounded;
+    private Vector2 direction;
+    [SerializeField] private float moveSpeed;
+    [SerializeField] private float groundDrag;
+    [SerializeField] private float airDrag;
+    [SerializeField] private float playerHeight;
+    [SerializeField] private LayerMask isGround;
 
     // Start is called before the first frame update
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        rb = GetComponent<Rigidbody>();
+        playerInput = GetComponent<PlayerInput>();
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
-        float mx = MouseX * Time.fixedDeltaTime * MouseSensitivity;
-        float my = MouseY * Time.fixedDeltaTime * MouseSensitivity;
+        if (!grounded)
+        {
+            grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, isGround);
+            if (grounded)
+            {
+                rb.AddForce(gameObject.transform.forward * 20, ForceMode.Impulse);
+            }
+        }
 
-        CameraVerticalRotation -= my;
-        CameraVerticalRotation = Mathf.Clamp(CameraVerticalRotation, -90f, 90f);
-        CameraHorizontalRotation += mx;
-        MainCamera.transform.rotation = Quaternion.Euler(CameraVerticalRotation, CameraHorizontalRotation, 0f);
-        Player.transform.rotation = Quaternion.Euler(0f, CameraHorizontalRotation, 0f);
+        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, isGround);
 
-        ActualCamera.position = Vector3.Lerp(ActualCamera.position, MainCamera.transform.position, 0.025f);
-        ActualCamera.rotation = Quaternion.Lerp(ActualCamera.rotation, MainCamera.transform.rotation, 0.5f); 
+        if (grounded)
+        {
+            rb.drag = groundDrag;
+        }
+        else
+        {
+            rb.drag = airDrag;
+
+        }
     }
 
-    public void UpdateMouseX(InputAction.CallbackContext context)
+    private void FixedUpdate()
     {
-        MouseX = context.ReadValue<float>();
+        Vector3 inputDirection = new Vector3(direction.x, 0, direction.y);
+        Vector3 moveDirection = transform.TransformDirection(inputDirection);
+        rb.AddForce(moveDirection.normalized * moveSpeed, ForceMode.Force);
     }
-
-    public void UpdateMouseY(InputAction.CallbackContext context)
+    public void JumpAction(InputAction.CallbackContext context)
     {
-        MouseY = context.ReadValue<float>();
+        if (grounded) //Only jump when on ground
+        {
+            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+            rb.AddForce(Vector3.up * 10, ForceMode.Impulse);
+        }
+    }
+    public void MoveAction(InputAction.CallbackContext context)
+    {
+        direction = context.ReadValue<Vector2>();
     }
 }
